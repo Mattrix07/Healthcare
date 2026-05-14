@@ -72,10 +72,15 @@ wiring behaves identically across modes.
 Each agent loads its SKILL.md via `SkillsProvider`:
 
 ```python
-skills_provider = SkillsProvider(
-    skill_paths=str(Path(__file__).parent / "skills")
+skills_provider = SkillsProvider.from_paths(
+    str(Path(__file__).parent / "skills")
 )
 ```
+
+> `agent-framework-core` 1.2.0 moved file-based construction from
+> `SkillsProvider(skill_paths=...)` (initial preview) to the
+> `SkillsProvider.from_paths(...)` factory — the old form raises `TypeError`
+> at import time and surfaces as HTTP `424 session_not_ready`.
 
 SKILL.md files live alongside the agent:
 

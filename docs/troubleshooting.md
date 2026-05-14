@@ -45,6 +45,60 @@ helper.
 
 ---
 
+## Hosted agent returns `424 session_not_ready`
+
+The backend logs an error like:
+
+```
+Foundry Hosted Agent <name> call failed: Error code: 424 - {'error': {
+  'code': 'session_not_ready',
+  'message': "Session '...' did not become ready within the expected timeout.
+              Please check your application logs and verify the /readiness
+              endpoint returns HTTP 200. ..."
+}}
+```
+
+This means the per-session agent container started but its `/readiness`
+probe never returned HTTP 200 within the bootstrap window, so Foundry
+cancelled the session. The agent process almost always crashed during
+import or `main()` setup before `ResponsesHostServer(...).run()` could
+bind to port 8088.
+
+**Step 1 — stream the failed session's container logs:**
+
+```bash
+# 1. Trigger a fresh session and capture its ID
+azd ai agent invoke <agent-name> --new-session --no-prompt "ping"
+
+# 2. Stream the per-session logs (max --tail 300)
+azd ai agent monitor <agent-name> --no-prompt \
+    --session-id <session-id-from-step-1> --tail 300
+```
+
+The stderr lines reveal the import-time exception. Common causes:
+
+| Stderr signature | Root cause | Fix |
+|---|---|---|
+| `TypeError: SkillsProvider.__init__() got an unexpected keyword argument 'skill_paths'` | `agent-framework-core` 1.2.0 moved file-based construction to `SkillsProvider.from_paths(...)`; the old kwarg form is rejected. | Use `SkillsProvider.from_paths("./skills")` (see all 4 `agents/*/main.py`). |
+| `... azure.ai.agentserver.core._tracing ... InstrumentationKey` parse error | Platform-injected `APPLICATIONINSIGHTS_CONNECTION_STRING` is malformed in the current preview. | Set `OTEL_CONNECTION_STRING` in `agent.yaml` and have `main.py` overwrite the broken value (already wired in this repo). |
+| `azure.identity ... DefaultAzureCredential failed to retrieve a token` | `DefaultAzureCredential` is too slow on the Foundry IMDS endpoint without a `client_id` hint. | Bind `ManagedIdentityCredential(client_id=os.environ["AZURE_CLIENT_ID"])` first via `ChainedTokenCredential` (already wired). |
+| Import error from a transitive `agent-framework-*` package | Pinned package set drifted from the refreshed preview SDK. | Confirm pins: `agent-framework-core>=1.2.0`, `agent-framework-foundry>=1.2.0`, `agent-framework-foundry-hosting>=1.0.0a260424`, `azure-ai-agentserver-core>=2.0.0b3`, then `azd deploy <agent-name>`. |
+
+**Step 2 — redeploy and verify:**
+
+```bash
+azd deploy <agent-name> --no-prompt
+azd ai agent invoke <agent-name> --new-session --no-prompt "ping"
+```
+
+A healthy agent returns its structured `response_format` JSON. If you
+still see 424 after the redeploy, capture a fresh session log
+(`azd ai agent monitor`) — the platform always cleans up the failing
+session after the timeout, so you must re-invoke to get a usable session
+ID for log streaming.
+
+---
+
 ## MAF Agent Fails to Start / "Failed to acquire Foundry auth token"
 
 The backend logs show an auth error when trying to invoke a hosted agent.

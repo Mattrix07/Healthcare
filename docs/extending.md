@@ -46,8 +46,8 @@ def main() -> None:
     # docker-compose.yml (local dev) and append to `tools` below. See
     # agents/clinical/main.py for a working example.
 
-    skills_provider = SkillsProvider(
-        skill_paths=str(Path(__file__).parent / "skills")
+    skills_provider = SkillsProvider.from_paths(
+        str(Path(__file__).parent / "skills")
     )
 
     project_endpoint = os.environ.get(

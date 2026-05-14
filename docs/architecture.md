@@ -435,10 +435,17 @@ Agent behaviors are defined in SKILL.md files — domain experts can update clin
 SKILL.md files live alongside each agent container and are loaded at startup via MAF `SkillsProvider`:
 
 ```python
-skills_provider = SkillsProvider(
-    skill_paths=str(Path(__file__).parent / "skills")
+skills_provider = SkillsProvider.from_paths(
+    str(Path(__file__).parent / "skills")
 )
 ```
+
+> **API note (`agent-framework-core` 1.2.0):** file-based construction moved
+> from the `SkillsProvider(skill_paths=...)` constructor (initial preview) to
+> the `SkillsProvider.from_paths(...)` factory. The old kwarg form raises
+> `TypeError` at import time, which prevents the agent from binding to port
+> 8088 and causes Foundry to return HTTP `424 session_not_ready` to every
+> backend call (see [troubleshooting.md](troubleshooting.md)).
 
 ### Skills Overview
 
