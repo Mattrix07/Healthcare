@@ -57,7 +57,6 @@ def main() -> None:
     # used by docker-compose .env) to the canonical APPLICATIONINSIGHTS_CONNECTION_STRING
     # name. In Foundry the platform injects the canonical name directly when
     # the project has an App Insights connection.
-    # the project has an App Insights connection.
     #
     # CAVEAT (current preview): the platform's auto-injection of
     # APPLICATIONINSIGHTS_CONNECTION_STRING produces a malformed value that

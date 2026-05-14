@@ -17,7 +17,9 @@ findings into a single final recommendation.
 
 ### Agent Inputs
 
-1. **Compliance Agent** — checked documentation completeness (8-item checklist)
+1. **Compliance Agent** — checked documentation completeness (10-item
+   checklist: items 1-7 blocking; items 8-10 — plan type, NCCI bundling
+   risk, service type — non-blocking)
 2. **Clinical Reviewer Agent** — validated ICD-10 and CPT codes, extracted
    clinical evidence with confidence scoring, searched supporting literature
 3. **Coverage Agent** — verified provider NPI, assessed coverage criteria

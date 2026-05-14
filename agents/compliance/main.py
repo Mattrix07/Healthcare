@@ -1,8 +1,9 @@
 """Compliance Validation Hosted Agent — refreshed Foundry Hosted Agents preview.
 
 Validates documentation completeness for prior authorization requests
-using an 8-item checklist. Uses no external tools — pure reasoning
-over the submitted request data.
+using a 10-item checklist (items 1-7 are blocking; items 8-10 — plan type,
+NCCI bundling risk, service type — are non-blocking and informational).
+Uses no external tools — pure reasoning over the submitted request data.
 
 Deployed as a Foundry Hosted Agent using the refreshed preview stack:
   - FoundryChatClient (agent-framework-foundry) — model bridge
@@ -40,7 +41,6 @@ def main() -> None:
     # Bridge legacy APPLICATION_INSIGHTS_CONNECTION_STRING (underscore form,
     # used by docker-compose .env) to the canonical APPLICATIONINSIGHTS_CONNECTION_STRING
     # name. In Foundry the platform injects the canonical name directly when
-    # the project has an App Insights connection.
     # the project has an App Insights connection.
     #
     # CAVEAT (current preview): the platform's auto-injection of
@@ -130,8 +130,9 @@ def main() -> None:
         instructions=(
             "You are a Compliance Validation Agent for prior authorization requests. "
             "Use your compliance-review skill to validate documentation completeness "
-            "using the 8-item checklist. You have NO tools — analyze only the request "
-            "data provided in the prompt."
+            "using the 10-item checklist (items 1-7 are blocking; items 8-10 — plan "
+            "type, NCCI bundling risk, and service type — are non-blocking). You have "
+            "NO tools — analyze only the request data provided in the prompt."
         ),
         tools=[],
         context_providers=[skills_provider],
