@@ -43,19 +43,26 @@ and structure the clinical narrative for downstream coverage assessment.
   only — do NOT use slashes (`/`) as separators (they cause 0 results on PubMed).
 
 #### Clinical Trials MCP (clinical-trials)
-- `search_trials(query, status, phase, limit)` — Search ClinicalTrials.gov for
-  trials matching a condition or intervention.
+- `search_trials(condition, intervention, location, sponsor, status, phase, study_type, page_size)` —
+  Search ClinicalTrials.gov for trials matching a condition or intervention.
+  All parameters are optional; pass `condition` (and optionally `intervention`)
+  for the most common patient-trial matching case. Use `page_size` (not `limit`)
+  for the result count. There is no `query` parameter — use `condition` for
+  free-text disease/symptom searches.
 - `get_trial_details(nct_id)` — Get comprehensive details for a specific trial.
-- `search_by_eligibility(condition, min_age, max_age, sex, eligibility_keywords, page_size)` —
+- `search_by_eligibility(condition, eligibility_keywords, min_age, max_age, sex, status, page_size)` —
   Find trials matching specific patient eligibility criteria. `min_age`/`max_age`
   use ClinicalTrials.gov string format (e.g. `"18 Years"`, `"6 Months"`); `sex`
-  is one of `"all"`, `"male"`, `"female"`.
-- `search_investigators(name, organization, limit)` — Search for trial
-  investigators by name or organization.
-- `analyze_endpoints(nct_id)` — Analyze the primary and secondary endpoints
-  of a clinical trial.
-- `search_by_sponsor(sponsor_name, status, limit)` — Search trials by
-  sponsor organization.
+  is one of `"all"`, `"male"`, `"female"`. All parameters are optional.
+- `search_investigators(condition, institution, location, investigator_name, status, page_size)` —
+  Find principal investigators (PIs) and research sites in a therapeutic area.
+  All parameters optional; combine `condition` with `institution` or `location`
+  to narrow results.
+- `analyze_endpoints(nct_id, condition, phase, page_size)` — Analyze the primary
+  and secondary endpoints of clinical trials. Pass `nct_id` for a single trial
+  or `condition`/`phase` for population-level endpoint analysis.
+- `search_by_sponsor(sponsor_name, condition, phase, status, page_size)` —
+  Search trials by sponsor organization. `sponsor_name` is required.
 
 ### Execution Steps
 
