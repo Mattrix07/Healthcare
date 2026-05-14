@@ -113,8 +113,13 @@ def main() -> None:
         ))
 
     # --- Skills from local directory ---
-    skills_provider = SkillsProvider(
-        skill_paths=str(Path(__file__).parent / "skills")
+    # SkillsProvider was refactored in agent-framework-core 1.2.0: file-based
+    # construction moved from `SkillsProvider(skill_paths=...)` (initial preview)
+    # to the `SkillsProvider.from_paths(...)` factory. Using the old kwarg form
+    # crashes the agent on import — /readiness never returns 200, so Foundry
+    # raises HTTP 424 session_not_ready.
+    skills_provider = SkillsProvider.from_paths(
+        str(Path(__file__).parent / "skills")
     )
 
     # --- Foundry chat client + Agent (refreshed preview) ---
