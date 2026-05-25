@@ -4,8 +4,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+def _env_bool(name: str, default: str = "false") -> bool:
+    return os.getenv(name, default).strip().lower() in {"1", "true", "yes", "on"}
+
+
 class Settings:
     FRONTEND_ORIGIN: str = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
+
+    # Local research/demo mode: bypasses Azure Foundry/MCP-backed hosted agents
+    # and returns deterministic, schema-shaped demo outputs for the frontend.
+    DEMO_MODE: bool = _env_bool("DEMO_MODE", "false")
 
     # ── Docker Compose (direct HTTP) mode ──────────────────────────────────────
     # docker-compose.yml hardcodes these to Docker service names; no .env entry
