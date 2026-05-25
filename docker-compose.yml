@@ -9,7 +9,10 @@ services:
     ports:
       - "8000:8000"
     environment:
-      # All 4 agent containers run separately.
+      # Local demo mode bypasses Azure Foundry/MCP-backed agent calls and returns
+      # deterministic, schema-shaped demo outputs for the research prototype UI.
+      - DEMO_MODE=${DEMO_MODE:-true}
+      # All 4 agent containers run separately when DEMO_MODE=false.
       # Backend calls them over HTTP — URLs are set to Docker service names.
       - HOSTED_AGENT_CLINICAL_URL=http://agent-clinical:8088
       - HOSTED_AGENT_COVERAGE_URL=http://agent-coverage:8088
