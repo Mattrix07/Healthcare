@@ -1,25 +1,15 @@
-"""Clinical Reviewer Agent — HTTP dispatch to hosted agent container.
-
-The agent logic, MCP connections, and SKILL.md all live in agents/clinical/.
-This module is the thin orchestrator-side caller that forwards the request.
-"""
+"""Clinical Reviewer Agent — HTTP dispatch or local demo output."""
 
 from app.config import settings
 from app.services.hosted_agents import invoke_hosted_agent
+from app.agents.demo_outputs import build_demo_clinical_result
 
 
 async def run_clinical_review(request_data: dict) -> dict:
-    """Dispatch to the Clinical Reviewer hosted agent.
+    """Dispatch to the Clinical Reviewer hosted agent or demo stub."""
+    if settings.DEMO_MODE:
+        return build_demo_clinical_result(request_data)
 
-    Args:
-        request_data: Dict with diagnosis_codes, procedure_codes,
-            clinical_notes, patient_name, patient_dob.
-
-    Returns:
-        Dict with diagnosis_validation, clinical_extraction (with
-        extraction_confidence), literature_support, clinical_trials,
-        clinical_summary, tool_results.
-    """
     return await invoke_hosted_agent(
         "clinical-reviewer-agent",
         settings.HOSTED_AGENT_CLINICAL_URL,
