@@ -1,7 +1,7 @@
 """CPT/HCPCS code format validation and curated lookup table.
 
 Pre-agent validation layer:
-  - Format validation: definitive (5-digit CPT or letter+4 HCPCS)
+  - Format validation: definitive (5-digit CPT, CPT Category III, or letter+4 HCPCS)
   - Lookup table: informational (~30 common PA-trigger codes)
 
 This does NOT replace payer-specific code checks. It catches typos and
@@ -13,7 +13,11 @@ import re
 
 # --- Format validation ---
 
+# CPT Category I: 5 digits, e.g. 27447.
+# CPT Category III: 4 digits + T, e.g. 0028T.
+# HCPCS Level II: 1 letter + 4 digits, e.g. J9271.
 _CPT_PATTERN = re.compile(r"^\d{5}$")
+_CPT_CATEGORY_III_PATTERN = re.compile(r"^\d{4}T$")
 _HCPCS_PATTERN = re.compile(r"^[A-V]\d{4}$")
 
 
@@ -23,7 +27,7 @@ def validate_code_format(code: str) -> dict:
     Returns dict with:
       code: the original code
       valid_format: True if format matches CPT or HCPCS pattern
-      code_type: "CPT" | "HCPCS" | "unknown"
+      code_type: "CPT" | "CPT Category III" | "HCPCS" | "unknown"
       detail: human-readable message
     """
     code = code.strip().upper()
@@ -34,6 +38,13 @@ def validate_code_format(code: str) -> dict:
             "valid_format": True,
             "code_type": "CPT",
             "detail": f"{code} — valid CPT format (5-digit numeric)",
+        }
+    elif _CPT_CATEGORY_III_PATTERN.match(code):
+        return {
+            "code": code,
+            "valid_format": True,
+            "code_type": "CPT Category III",
+            "detail": f"{code} — valid CPT Category III format (4 digits + T)",
         }
     elif _HCPCS_PATTERN.match(code):
         return {
@@ -49,8 +60,8 @@ def validate_code_format(code: str) -> dict:
             "code_type": "unknown",
             "detail": (
                 f"{code} — invalid format. "
-                "Expected 5-digit CPT (e.g. 31628) or "
-                "letter+4 HCPCS (e.g. J9271)."
+                "Expected 5-digit CPT (e.g. 31628), CPT Category III "
+                "(e.g. 0028T), or letter+4 HCPCS (e.g. J9271)."
             ),
         }
 
@@ -62,6 +73,8 @@ _KNOWN_CODES: dict[str, dict] = {
     "31628": {"description": "Bronchoscopy with transbronchial lung biopsy", "category": "Pulmonary"},
     "31629": {"description": "Bronchoscopy with transbronchial needle aspiration", "category": "Pulmonary"},
     "31652": {"description": "Bronchoscopy with endobronchial ultrasound (EBUS)", "category": "Pulmonary"},
+    # CPT Category III / Emerging technologies
+    "0028T": {"description": "CPT Category III temporary tracking code", "category": "Emerging Technology"},
     # Imaging - Advanced
     "71260": {"description": "CT chest with contrast", "category": "Imaging"},
     "71250": {"description": "CT chest without contrast", "category": "Imaging"},
