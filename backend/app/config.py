@@ -30,10 +30,10 @@ class Settings:
     # - llm: calls the configured chat-completions endpoint.
     # - hosted: calls Azure/Foundry hosted agents.
     # - auto: preserves legacy DEMO_MODE/LOCAL_LLM_MODE switching.
-    RUNTIME_MODE: str = _env_str("RUNTIME_MODE", "demo").lower()
+    RUNTIME_MODE: str = _env_str("RUNTIME_MODE", "auto").lower()
 
     # Legacy flags retained for backwards compatibility when RUNTIME_MODE=auto.
-    DEMO_MODE: bool = _env_bool("DEMO_MODE", "false")
+    DEMO_MODE: bool = _env_bool("DEMO_MODE", "true")
     LOCAL_LLM_MODE: bool = _env_bool("LOCAL_LLM_MODE", "false")
 
     # Local LLM / API mode. Configure these in backend/.env.
